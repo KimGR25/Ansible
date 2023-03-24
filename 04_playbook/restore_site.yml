@@ -1,0 +1,45 @@
+---
+- name: restore the site.yml
+  hosts: webservers
+  tasks:
+    # 1) 방화벽 등록 해제({http,https})
+    # 2) 서비스 내리기(httpd)
+    # 3) 서비스 설정파일 제거(/var/www/html/index.html)
+    # 4) 패키지 삭제(httpd mod_ssl)
+
+    # 1) 방화벽 등록 해제({http,https})
+    - name: (1) 방화벽 서비스 내리기 - http, https
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        immediate: yes
+        state: disabled
+      loop:
+        - http
+        - https
+
+    # 2) 서비스 내리기(httpd)
+    - name: (2) 웹서비스 내리기 - httpd
+      service:
+        name: httpd
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    # 3) 서비스 설정파일 제거(/var/www/html/index.html)
+    - name: (3) 서비스 설정파일 제거 - /var/www/html/index.html
+      file:
+        path: /var/www/html/index.html
+        state: absent
+
+    # 4) 패키지 삭제(httpd mod_ssl)
+    - name: (4) 패키지 삭제 - httpd, mod_ssl
+      yum:
+        name: 
+          - httpd
+          - mod_ssl
+        state: absent
+      ignore_errors: yes
+
+    
+

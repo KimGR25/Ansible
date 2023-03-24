@@ -1,0 +1,42 @@
+---
+- name: Restore Web-DB
+  hosts: all
+  tasks:
+    # 1) 방화벽 해제 - http, https
+    # 2) 웹서비스 설정파일 제거 - /var/www/html/index.php
+    # 3) 서비스 중지 - firewalld, web(httpd), db(mariadb)
+    # 4) 패키지 삭제 - Web(httpd, php, php-mysqlnd, php-pdo) DB(mariadb-server) firewall(firewalld)
+
+    - name: 방화벽 해제 - http, https
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        immediate: yes
+        state: disabled
+      loop:
+        - http
+        - https
+    - name: 웹서비스 설정파일 제거 - /var/www/html/index.php
+      file:
+        path: /var/www/html/index.php
+        state: absent
+    - name: 서비스 중지 - firewalld, web(httpd), db(mariadb)
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      loop:
+        - firewalld
+        - httpd
+        - mariadb
+    - name: 패키지 삭제 - Web(httpd, php, php-mysqlnd, php-pdo) DB(mariadb-server) firewall(firewalld)
+      yum:
+        name:
+         - httpd
+         - php
+         - php-mysqlnd
+         - php-pdo
+         - mariadb-server
+         - firewalld
+        state: absent
+      ignore_errors: 200

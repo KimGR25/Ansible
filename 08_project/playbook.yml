@@ -1,0 +1,54 @@
+---
+- name: Configure web server
+  hosts: webservers
+  tasks:
+    # 1) 웹패키지 설치 및 기동, 서비스 기동
+    #   * httpd 패키지 설치
+    #   * httpd 서비스 기동
+    # 2) 방화벽 설치 및 기동, 서비스 기동
+    #   * firewalld 패키지 설치
+    #   * firewalld 서비스 기동
+    #   * 방화벽 서비스 등록 - http, https
+    # 3) 웹서비스 설정 작업
+    #   * /var/www/html/index.html
+    # 4) 클라이언트에서 웹 요청 테스트
+
+    # * import_playbook 사용
+    # * import_tasks, include_tasks 사용
+
+    # =================================================
+    # 1) 웹패키지 설치 및 기동, 서비스 기동
+    #   * httpd 패키지 설치
+    #   * httpd 서비스 기동
+    - name: Include tasks - /tasks/environment.yml
+      include_tasks: tasks/environment.yml
+      vars:
+        package:
+          - httpd
+          - mod_ssl
+        service: httpd
+    # 2) 웹서비스 설정 작업
+    #   * /var/www/html/index.html
+    - name: Import_tasks - /tasks/placeholder.yml
+      import_tasks: tasks/placeholder.yml
+      vars:
+        file: /var/www/html/index.html
+        motdfile: /etc/motd
+
+    # 3) 방화벽 설치 및 기동, 서비스 기동
+    #   * firewalld 패키지 설치
+    #   * firewalld 서비스 기동
+    #   * 방화벽 서비스 등록 - http, https
+    - name: include_tasks - tasks/firewall.yml
+      include_tasks: tasks/firewall.yml
+      vars:
+        firewall_pkg: firewalld
+        firewall_svc: firewalld
+        rule:
+          - http
+          - https
+# 4) 클라이언트에서 웹 요청 테스트
+- name: Import playbook - plays/test.yml
+  import_playbook: plays/test.yml
+  vars:
+    url: "http://ansible1.example.com"

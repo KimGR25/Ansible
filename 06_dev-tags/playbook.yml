@@ -1,0 +1,26 @@
+---
+- name: 메일서버 구축
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: 메일 작업 수행
+      include: configure_mail.yml
+      when: inventory_hostname in groups['mailservers'] 
+  
+  handlers:
+    - name: start_postfix
+      service:
+        name: postfix
+        state: started
+        enabled: yes
+    
+    - name: start_dovecot
+      service:
+        name: dovecot
+        state: started
+        enabled: yes
+    
+    - name: restart_postfix
+      service:
+        name: postfix
+        state: restarted

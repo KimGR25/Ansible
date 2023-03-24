@@ -1,0 +1,15 @@
+---
+- name: restore_playbook
+  hosts: all
+  tasks:
+    - name: 서비스 중지
+      service:
+        name: mariadb
+        state: stopped
+        enabled: no
+    - name: 패키지 삭제
+      yum:
+        name:
+          - mariadb-server
+          - python3-PyMySQL
+        state: absent

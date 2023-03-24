@@ -1,0 +1,21 @@
+- name: 사용자 정의 팩트 배포
+  hosts: web1
+  vars:
+    remote_dir: /etc/ansible/facts.d
+    fact_file: files/custom.fact
+  tasks:
+    # 1) /etc/ansible/fact.d 디렉토리 생성
+    # 2) 팩트파일 배포
+    # * files/custom.fact -> 관리대상호스트
+
+    - name: 1) {{ remote_dir }} 디렉토리 생성
+      file:
+        path: "{{ remote_dir }}"
+        recurse: yes
+        state: directory
+    
+    - name: 2) 팩트파일 배포
+      copy:
+        src: "{{ fact_file }}"
+        dest: "{{ remote_dir }}"
+

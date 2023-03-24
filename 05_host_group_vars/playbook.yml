@@ -1,0 +1,8 @@
+---
+- name: Install Packages
+  hosts: all
+  tasks:
+    - name: Install the Packages - "{{ package }}"
+      yum:
+        name: "{{ package }}"
+        state: present 

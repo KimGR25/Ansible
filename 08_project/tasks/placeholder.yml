@@ -1,0 +1,10 @@
+---
+  - name: Create placeholder file
+    copy:
+      content: "{{ ansible_facts['fqdn'] }} has been customized using Ansible.\n"
+      dest: "{{ file }}"
+
+  - name: Create placeholder file
+    copy:
+      content: "Welcome to my Server {{ ansible_facts['hostname']}}\n"
+      dest: "{{ motdfile }}"

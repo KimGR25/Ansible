@@ -1,0 +1,8 @@
+sdb: /dev/sdb
+sdc: /dev/sdc
+sdb1: /dev/sdb1
+sdc1: /dev/sdc1
+lv1: /dev/vg1/lv1
+lv2: /dev/vg1/lv2
+mnt1: /mnt/lv1
+mnt2: /mnt/lv2

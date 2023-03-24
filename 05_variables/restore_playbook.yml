@@ -1,0 +1,44 @@
+---
+- name: Deploy and Start Apache HTTPD Service
+  hosts: webserver
+  vars_files: vars/vars.yml
+  tasks:
+  # 1) 방화벽 등록 해제 http, https
+  # 2) 서비스 설정 파일 삭제 /var/www/html/index.html
+  # 3) 서비스 중지 firewalld, httpd
+  # 4) 패키지 삭제 httpd, mod_ssl, python3-PyMySQL, firewalld
+    - name: 1) 방화벽 등록 해제 {{ fw_http }}, {{ fw_https }}
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        immediate: yes
+        state: disabled
+      loop:
+        - "{{ fw_http }}"
+        - "{{ fw_https }}"
+
+    - name: 2) 서비스 설정 파일 삭제 /var/www/html/index.html
+      file:
+        path: /var/www/html/index.html
+        state: absent
+
+    - name: 3) 서비스 중지 {{ svc_fw }}, {{ svc_web }}
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      loop:
+        - "{{ svc_fw }}"
+        - "{{ svc_web }}"
+    
+    - name: 4) 패키지 삭제 {{ pkg_http }}, {{ pkg_https }}, {{ pkg_python }}, {{ pkg_fw }}
+      yum:
+        name:
+          - "{{ pkg_http }}"
+          - "{{ pkg_https }}"
+          - "{{ pkg_python }}"
+          - "{{ pkg_fw }}"
+        state: absent
+
+
+

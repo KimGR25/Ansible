@@ -1,0 +1,8 @@
+---
+- name: remove_file
+  hosts: all
+  tasks:
+    - name:
+      file:
+        path: /home/dev/ops/users.txt
+        state: absent

@@ -1,0 +1,16 @@
+---
+- name: restore ansible4 디스크 작업
+  hosts: web4
+  vars_files:
+    - vars/vars.yml
+  tasks:
+    - name: unmount {{ mnt1 }}
+      mount: 
+        path: "{{ mnt1 }}"
+        state: absent
+
+    - name: unmount {{ mnt2 }}
+      mount: 
+        path: "{{ mnt2 }}"
+        state: absent
+        

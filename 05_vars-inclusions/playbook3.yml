@@ -1,0 +1,16 @@
+---
+- name: 파일서버 패키지 설치
+  hosts: fileservers
+  tasks:
+    
+    - name: epel 설치
+      include_tasks: install_package.yml
+      vars:
+        packages:
+          web_pkg: epel-release
+
+    - name: 톰캣 설치
+      include_tasks: install_package.yml
+      vars:
+        packages:
+          web_pkg: tomcat

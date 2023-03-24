@@ -1,0 +1,56 @@
+---
+- name: restore_playbook
+  hosts: ansible1.example.com
+  vars_files:
+    - vars/vars.yml
+  tasks:
+    # 1) 웹서비스 설정, .htaccess 파일 제거
+    # 2) /etc/httpd/secrets 디렉토리 제거
+    # 3) 방화벽 등록해제 - http, https
+    # 4) 서비스 중지 - firewalld, httpd
+    # 5) 패키지 삭제 - httpd, firewalld, mod_ssl
+
+    # 1) 웹서비스 설정, .htaccess 파일 제거
+    - name: 1) 웹서비스 설정, .htaccess 파일 제거
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ web_root }}/index.html"
+        - "{{ web_root }}/.htaccess"
+    
+    # 2) /etc/httpd/secrets 디렉토리 제거
+    - name: 2) /etc/httpd/secrets 디렉토리 제거
+      file:
+        path: "{{ secrets_dir }}"
+        state: absent
+    
+    # 3) 방화벽 등록해제 - http, https
+    - name: 3) 방화벽 등록해제 - http, https
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        immediate: yes
+        state: disabled
+      with_items:
+        - "{{ fw_http }}"
+        - "{{ fw_https }}"
+
+    # 4) 서비스 중지 - firewalld, httpd
+    - name: 4) 서비스 중지 - firewalld, httpd
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      with_items:
+        - "{{ svc_fw }}"
+        - "{{ svc_web }}"
+
+    # 5) 패키지 삭제 - httpd, firewalld, mod_ssl
+    - name: 5) 패키지 삭제 - httpd, firewalld, mod_ssl
+      yum:
+        name:
+          - "{{ pkg_fw }}"
+          - "{{ pkg_http }}"
+          - "{{ pkg_https }}"
+        state: absent

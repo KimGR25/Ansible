@@ -1,0 +1,25 @@
+---
+- name: DB 삭제
+  gather_facts: no
+  hosts: databases
+  vars:
+    db_pkgs:
+      - mariadb-server
+      - python3-PyMySQL
+    db_svc: mariadb
+    db_conf_src: http://ansible.example.com/my.cnf.standard
+    db_conf_dest: /etc/my.cnf
+  tasks:
+    - name: 설정파일 삭제
+      file:
+        path: "{{ db_conf_dest }}"
+        state: absent
+    - name: 서비스 중지
+      service:
+        name: "{{ db_svc }}"
+        state: stopped
+        enabled: no
+    - name: 패키지 삭제
+      yum:
+        name: "{{ db_pkgs }}"
+        state: absent

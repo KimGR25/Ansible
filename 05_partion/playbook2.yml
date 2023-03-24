@@ -1,0 +1,76 @@
+---
+- name: ansible4 디스크 작업
+  hosts: web4
+  vars:
+    lvms:
+      - { lvname: lv1, lvsize: 500M }
+      - { lvname: lv2, lvsize: 1G }
+    fs:
+      - { fstype: ext4, dev: /dev/vg1/lv1 }
+      - { fstype: xfs, dev: /dev/vg1/lv2}
+    mounts:
+      - { mountdir: /mnt/lv1, device: /dev/vg1/lv1, fstype: ext4 }
+      - { mountdir: /mnt/lv2, device: /dev/vg1/lv2, fstype: xfs }
+  vars_files:
+    - vars/vars.yml
+  tasks:
+    # 1) 파티션 작업 /dev/sdb1 (1G) /dev/sdc1 (1G)
+    # 2) PV
+    # 3) VG (/dev/sdb1, /dev/sdc1 -> VG1)
+    # 4) LV (LV1 500M, LV2 1G)
+    # 5) FS 구성 LV1 -> ext4 / LV2 -> xfs
+    # 6) 마운트 작업 -> LV1 -> mmt/lv1 / LV2 -> mmt/lv2
+
+    # 1) 파티션 작업 /dev/sdb1 (1G) /dev/sdc1 (1G)
+    - name: 1) 파티션 작업 {{ sdb1 }} (1G) {{ sdc1 }} (1G)
+      parted:
+        device: "{{ item }}"
+        number: 1
+        flags: [ lvm ]
+        state: present
+      with_items:
+        - "{{ sdb }}"
+        - "{{ sdc }}"
+
+    # 2) PV, VG (/dev/sdb1, /dev/sdc1 -> VG1) 생성
+    - name: 2) PV, VG ({{ sdb1 }}, {{ sdc1 }} -> VG1) 생성
+      lvg:
+        vg: vg1
+        pvs: "{{ sdb1 }},{{ sdc1 }}"
+        pesize: 16
+
+    # 4) LV (LV1 500M, LV2 1G)
+    - name: 4) LV (LV1 500M), LV (LV2 1G)
+      lvol:
+        vg: vg1
+        lv: "{{ item.lvname }}"
+        size: "{{ item.lvsize }}"
+        force: yes
+      with_items: "{{ lvms }}"
+
+    # 5) FS 구성 LV1 -> ext4 / LV2 -> xfs
+    - name: 5-1) FS 구성 LV1 -> ext4, FS 구성 LV2 -> xfs
+      filesystem:
+        fstype: "{{ item.fstype }}"
+        dev: "{{ item.dev }}"
+      with_items: "{{ fs }}"
+
+    # 6) 마운트 작업
+    # 6-1) 마운트 포인트 생성
+    - name: 6-1) 마운트 포인트 생성 {{ mnt1 }}, {{ mnt2 }}
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - "{{ mnt1 }}"
+        - "{{ mnt2 }}"
+
+    # 6-2) 마운트 작업 -> LV1 -> mnt/lv1 / LV2 -> mnt/lv2
+    - name: 6-2) 마운트 작업 -> {{ lv1 }} -> {{ mnt1 }}, {{ lv2 }} -> {{ mnt2 }}
+      mount:
+        path: "{{ item.mountdir }}"
+        src: "{{ item.device }}"
+        fstype: "{{ item.fstype }}"
+        state: mounted
+      with_items: "{{ mounts }}"

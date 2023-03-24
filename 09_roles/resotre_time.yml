@@ -1,0 +1,12 @@
+---
+- name: Restore time
+  hosts: all
+  gather_facts: no
+  pre_tasks:
+    - name: configure timezone - Asia/Seoul
+      timezone:
+        name: Asia/Seoul
+  roles: 
+    - rhel-system-roles.timesync
+
+   

@@ -1,0 +1,14 @@
+---
+- name: restore_createusers
+  hosts: devservers
+  remote_user: devops
+  become: true
+  vars_files:
+    - vars/secret.yml
+  tasks:
+    - name: restore_createusers
+      user:
+        name: "{{  item.name }}"
+        state: absent
+        remove: yes
+      with_items: "{{ newusers }}"

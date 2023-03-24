@@ -1,0 +1,19 @@
+---
+- name:  restore_playbook
+  hosts: all
+  tasks:
+    - name: 서비스 중지 - postfix, dovecot
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      with_items:
+        - postfix
+        - dovecot
+    
+    - name: 패키지 삭제 - postfix, dovecot
+      yum:
+        name:
+          - postfix
+          - dovecot
+        state: absent

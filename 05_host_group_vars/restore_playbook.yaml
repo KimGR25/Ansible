@@ -1,0 +1,12 @@
+---
+- name: Retore playbook
+  hosts: all
+  tasks:
+    - name: Uninstall Packages
+      yum:
+        name:
+          - mutt
+          - mariadb-server
+          - httpd
+          - tree
+        state: absent

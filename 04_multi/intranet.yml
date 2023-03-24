@@ -1,0 +1,42 @@
+- name: 1st play
+  hosts: web1
+  tasks:
+    - name: (1) 패키지 설치
+      yum:
+        name:
+          - httpd
+          - mod_ssl
+          - firewalld
+        state: latest
+    - name: (2) 웹서비스 설정
+      copy:
+        content: "Welcome to the example.com intranet!\n"
+        dest: /var/www/html/index.html
+
+    - name: (3) 웹서비스, 방화벽 시작
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - httpd
+        - firewalld
+    
+    - name: (4) 방화벽 등록
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        immediate: yes
+        state: enabled
+      loop:
+        - http
+        - https
+
+- name: 2nd play
+  hosts: localhost
+  tasks:
+    - name: 웹서버 동작 확인
+      uri:
+        url: http://web1.example.com
+        return_content: yes
+        status_code: 200

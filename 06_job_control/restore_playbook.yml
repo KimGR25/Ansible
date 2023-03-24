@@ -1,0 +1,15 @@
+---
+- name: restore
+  hosts: all
+  tasks:
+    - name:
+      service:
+        name: mariadb
+        state: stopped
+        enabled: no
+    - name: 
+      yum:
+        name:
+          - httpd
+          - mariadb
+        state: absent

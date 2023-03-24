@@ -1,0 +1,11 @@
+---
+- name: restore_create_user
+  hosts: all
+  vars_files:
+    - secret2.yml
+  tasks:
+    - name: 유저 삭제
+      user:
+        name: "{{ username }}"
+        state: absent
+        remove: yes

@@ -1,0 +1,38 @@
+---
+- name: restore_factcheck
+  hosts: all
+  tasks:
+    - name: 서비스 설정파일 삭제
+      file:
+        path: /var/www/html/index.html
+        state: absent
+
+    - name: 방화벽 내리기
+      firewalld:
+        service: "{{ item }}"
+        permanent: yes
+        immediate: yes
+        state: disabled
+      loop:
+        - http
+        - https
+    
+    - name: 서비스 중지
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      loop:
+        - httpd
+        - firewalld
+    
+    - name: 패키지 삭제
+      yum:
+        name:
+          - httpd
+          - firewalld
+        state: absent
+
+
+
+
