@@ -1,0 +1,35 @@
+- name: 방화벽 해제 - DNS
+  firewalld:
+    service: dns
+    permanent: yes
+    immediate: yes
+    state: disabled
+  ignore_errors: true
+    
+- name: 서비스 종료 - named,firewalld
+  service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: no
+  with_items:
+    - named
+    - firewalld
+  ignore_errors: true
+    
+- name: 서비스 설정 파일 제거
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /var/named
+    - /etc/named.conf
+    - /etc/named.rfc1912.zones
+  ignore_errors: true
+    
+- name: 패키지 삭제 - bind,bind-utils
+  yum:
+    name:
+      - bind
+      - bind-utils
+    state: absent
+  ignore_errors: true

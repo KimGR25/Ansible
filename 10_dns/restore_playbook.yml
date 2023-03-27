@@ -1,0 +1,10 @@
+---
+- name: DNS 서버 복원 작업
+  hosts: test
+  tasks:
+    - name: 복원 작업
+      include_tasks: tasks/remove_dns.yml
+
+    - name: 복원 작업 - net
+      include_tasks: tasks/restore_net.yml
+

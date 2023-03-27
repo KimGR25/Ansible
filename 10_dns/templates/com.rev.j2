@@ -1,0 +1,13 @@
+$TTL 4
+@       IN SOA  ns1.com. {{ rdns_name }}.com. (
+                                        10      ; serial
+                                        1D      ; refresh
+                                        1H      ; retry
+                                        1W      ; expire
+                                        3H )    ; minimum
+
+                IN  NS          ns1.com.
+{{ dns_revers_num }}              IN  PTR         ns1.com.
+
+;; Domain Delegation
+12              IN  PTR         ns1.example.com. 
